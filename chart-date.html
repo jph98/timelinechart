@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <script type="text/javascript" src="./js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+  <body>
+    <h2 style="font-family: Arial, Helvetica, sans-serif">Engineering Plan</h2>
+    <div id="chart_div"></div>
+  </body>
+
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['timeline']});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+
+      $.ajax({
+        url: './data.csv',
+        dataType: 'text',
+      }).done(function(cd) {
+        var csvData = cd.split('\n');
+        var header = csvData[0].split(',');
+        var displayData = [];
+        displayData[0] = header;
+
+        for (i = 1; i < csvData.length; i++) {
+          if (csvData[i] != "") {
+            var parts = csvData[i].split(',');
+            console.log(parts);
+            var jobName = parts[0];
+            var startDateTime = parts[1];
+            var endDateTime = parts[2];
+
+            console.log("start date time: " + startDateTime);
+            var sDate = startDateTime.split(" ")[0];
+            var sTime = startDateTime.split(" ")[1];
+            console.log("sDate: " + sDate);
+            console.log("sTime: " + sTime);
+            var start = new Date(sDate.split("-")[0], sDate.split("-")[1], sDate.split("-")[2], sTime.split(":")[0], sTime.split(":")[1], sTime.split(":")[2]);
+
+            console.log("end date time: " + endDateTime);
+            var eDate = endDateTime.split(" ")[0];
+            var eTime = endDateTime.split(" ")[1];
+            console.log("eDate: " + eDate);
+            console.log("eTime: " + eTime);
+            var end = new Date(eDate.split("-")[0], eDate.split("-")[1], eDate.split("-")[2], eTime.split(":")[0], eTime.split(":")[1], eTime.split(":")[2]);
+            displayData[i] = [jobName, start, end];
+          }
+        }
+
+        var arrData = google.visualization.arrayToDataTable(displayData);
+
+        var options = {
+          height: 600,
+        };
+
+        var chart = new google.visualization.Timeline(document.getElementById('chart_div'));
+
+        chart.draw(arrData, options);
+      });
+    }
+  </script>
+</html>
